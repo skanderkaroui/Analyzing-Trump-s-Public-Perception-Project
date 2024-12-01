@@ -41,39 +41,7 @@ def perform_reddit_sentiment_analysis(conn):
         print(f"Error in Reddit sentiment analysis: {str(e)}")
         raise
 
-def plot_sentiment_comparison(tweets_sentiment, reddit_sentiment):
-    """Plot comparison of tweet and Reddit sentiment"""
-    try:
-        plt.figure(figsize=(12, 6))
-        
-        # Align the date ranges
-        start_date = max(min(tweets_sentiment.index), min(reddit_sentiment.index))
-        end_date = min(max(tweets_sentiment.index), max(reddit_sentiment.index))
-        
-        # Filter data to common date range
-        tweets_sentiment = tweets_sentiment[
-            (tweets_sentiment.index >= start_date) & 
-            (tweets_sentiment.index <= end_date)
-        ]
-        reddit_sentiment = reddit_sentiment[
-            (reddit_sentiment.index >= start_date) & 
-            (reddit_sentiment.index <= end_date)
-        ]
-        
-        plt.plot(tweets_sentiment.index, tweets_sentiment, label='Tweet Sentiment', color='blue')
-        plt.plot(reddit_sentiment.index, reddit_sentiment, label='Reddit Sentiment', color='orange')
-        plt.title('Sentiment Analysis Comparison: Tweets vs Reddit Posts')
-        plt.xlabel('Date')
-        plt.ylabel('Sentiment Score')
-        plt.legend()
-        plt.xticks(rotation=45)
-        plt.tight_layout()
-        plt.savefig('sentiment_comparison.png')
-        plt.close()
-        
-    except Exception as e:
-        print(f"Error in plotting: {str(e)}")
-        raise
+
 
 def main():
     print("Starting sentiment analysis...")
@@ -99,9 +67,6 @@ def main():
         print("Analyzing Reddit sentiment...")
         daily_reddit_sentiment = perform_reddit_sentiment_analysis(conn)
         
-        # Plot the comparison
-        print("Generating comparison plot...")
-        plot_sentiment_comparison(daily_tweet_sentiment, daily_reddit_sentiment)
         
         print("Sentiment analysis completed successfully.")
         

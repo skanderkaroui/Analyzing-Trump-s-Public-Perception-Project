@@ -71,10 +71,6 @@ class SocialMediaAnalyzer:
         all_text = ' '.join(str(text) for text in text_data)
         wordcloud = WordCloud(width=800, height=400, background_color='white').generate(all_text)
         
-        plt.figure(figsize=(10, 5))
-        plt.imshow(wordcloud, interpolation='bilinear')
-        plt.axis('off')
-        plt.savefig(f'{source}_wordcloud.png')
         plt.close()
 
     def analyze_posting_patterns(self):
@@ -93,7 +89,7 @@ class SocialMediaAnalyzer:
         plt.title('Tweet Distribution by Hour and Device')
         plt.xlabel('Hour of Day')
         plt.ylabel('Number of Tweets')
-        plt.savefig('posting_patterns.png')
+        
         plt.close()
         
         return hourly_device_dist 
