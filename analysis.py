@@ -5,6 +5,7 @@ from textblob import TextBlob
 from wordcloud import WordCloud
 import numpy as np
 from datetime import datetime
+import re  # Import the regular expressions module
 
 class SocialMediaAnalyzer:
     def __init__(self, conn):
@@ -68,9 +69,16 @@ class SocialMediaAnalyzer:
                 print(f"Error accessing Reddit comments: {str(e)}")
                 raise
         
+        # Clean the text data by removing URLs
+        text_data = text_data.apply(lambda x: re.sub(r'http\S+|www\S+|https\S+', '', str(x), flags=re.MULTILINE))
+
         all_text = ' '.join(str(text) for text in text_data)
         wordcloud = WordCloud(width=800, height=400, background_color='white').generate(all_text)
         
+        plt.figure(figsize=(10, 5))
+        plt.imshow(wordcloud, interpolation='bilinear')
+        plt.axis('off')
+        plt.savefig(f'{source}_wordcloud.png')
         plt.close()
 
     def analyze_posting_patterns(self):

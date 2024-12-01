@@ -86,16 +86,15 @@ def execute_queries(conn):
             FROM trump_tweets
             GROUP BY device;
         ''',
-        "Average Favorites per Tweet": '''
-            SELECT AVG(favorites) AS average_favorites
+        "Average Retweets per Tweet": '''
+            SELECT AVG(retweets) AS average_retweets
             FROM trump_tweets;
         ''',
-        "Top 5 Most Commented Reddit Posts": '''
-            SELECT title, COUNT(comments) AS comments_count
+        "Top 5 Reddit Posts by Submission Location": '''
+            SELECT title, submission_location, COUNT(*) AS post_count
             FROM reddit_comments
-            WHERE comments IS NOT NULL
-            GROUP BY title
-            ORDER BY comments_count DESC
+            GROUP BY title, submission_location
+            ORDER BY post_count DESC
             LIMIT 5;
         ''',
         "Count of Retweets": '''
@@ -128,9 +127,7 @@ def perform_advanced_analysis(conn):
     print(engagement_df.describe())
     
     # Create word clouds
-    analyzer.create_word_cloud('tweets')
-    analyzer.create_word_cloud('reddit')
-    logging.info("Word clouds generated")
+    # analyzer.create_word_cloud('reddit')
     
     # Analyze posting patterns
     posting_patterns = analyzer.analyze_posting_patterns()

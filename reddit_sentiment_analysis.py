@@ -12,7 +12,6 @@ def perform_reddit_sentiment_analysis(conn):
         # Get column names from the table
         columns_query = "SELECT * FROM reddit_comments LIMIT 1"
         columns_df = pd.read_sql_query(columns_query, conn)
-        print("Available columns in reddit_comments table:", columns_df.columns.tolist())
         
         # Query the data - using 'comments' column
         reddit_df = pd.read_sql_query(
