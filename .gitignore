@@ -1,3 +1,4 @@
 env
 *.envcache__
 __pycache__
+social_analysis_20241201.log
