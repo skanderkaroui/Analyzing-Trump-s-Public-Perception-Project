@@ -1,10 +1,20 @@
 import sqlite3
 import pandas as pd
+from analysis import SocialMediaAnalyzer
+import logging
+from datetime import datetime
 
 # Constants
 REDDIT_FILE = 'reddit_trump.txt'
 TWEETS_FILE = 'trump_tweets.csv'
 DATABASE = 'social_analysis.db'
+
+# Add logging configuration
+logging.basicConfig(
+    filename=f'social_analysis_{datetime.now().strftime("%Y%m%d")}.log',
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 
 def define_organization():
     print("This project is aimed at analyzing social media data related to Donald Trump.")
@@ -100,19 +110,57 @@ def execute_queries(conn):
         print(f"{description}:")
         print(result)
 
+def perform_advanced_analysis(conn):
+    analyzer = SocialMediaAnalyzer(conn)
+    
+    logging.info("Starting advanced analysis...")
+    
+    # Perform sentiment analysis
+    sentiment_stats = analyzer.perform_sentiment_analysis()
+    logging.info("Sentiment analysis completed")
+    print("\nSentiment Analysis Statistics:")
+    print(sentiment_stats)
+    
+    # Generate engagement metrics
+    engagement_df = analyzer.generate_engagement_metrics()
+    logging.info("Engagement analysis completed")
+    print("\nEngagement Metrics Summary:")
+    print(engagement_df.describe())
+    
+    # Create word clouds
+    analyzer.create_word_cloud('tweets')
+    analyzer.create_word_cloud('reddit')
+    logging.info("Word clouds generated")
+    
+    # Analyze posting patterns
+    posting_patterns = analyzer.analyze_posting_patterns()
+    logging.info("Posting patterns analysis completed")
+    print("\nPosting Patterns by Hour:")
+    print(posting_patterns.head())
+
 def main():
-    define_organization()
-    reddit_data, tweets_data = extract_data(REDDIT_FILE, TWEETS_FILE)
+    try:
+        logging.info("Starting social media analysis program")
+        define_organization()
+        reddit_data, tweets_data = extract_data(REDDIT_FILE, TWEETS_FILE)
 
-    conn = sqlite3.connect(DATABASE)
-    cursor = conn.cursor()
-    define_database_model(cursor)
+        conn = sqlite3.connect(DATABASE)
+        cursor = conn.cursor()
+        define_database_model(cursor)
 
-    load_data_to_db(conn, reddit_data, tweets_data)
-    execute_queries(conn)
+        load_data_to_db(conn, reddit_data, tweets_data)
+        execute_queries(conn)
+        
+        # Perform advanced analysis
+        perform_advanced_analysis(conn)
 
-    conn.close()
-    print("Program completed.")
+        conn.close()
+        logging.info("Program completed successfully")
+        print("Program completed. Check the generated visualizations and log file for details.")
+        
+    except Exception as e:
+        logging.error(f"An error occurred: {str(e)}")
+        raise
 
 if __name__ == '__main__':
     main()

@@ -1,0 +1,10 @@
+2024-12-01 17:07:54,798 - INFO - Starting social media analysis program
+2024-12-01 17:07:55,968 - INFO - Starting advanced analysis...
+2024-12-01 17:08:05,555 - INFO - Sentiment analysis completed
+2024-12-01 17:08:05,589 - INFO - Engagement analysis completed
+2024-12-01 17:08:08,631 - ERROR - An error occurred: 'comments'
+2024-12-01 17:29:00,482 - INFO - Starting social media analysis program
+2024-12-01 17:29:01,700 - INFO - Starting advanced analysis...
+2024-12-01 17:29:10,480 - INFO - Sentiment analysis completed
+2024-12-01 17:29:10,517 - INFO - Engagement analysis completed
+2024-12-01 17:29:13,610 - ERROR - An error occurred: 'comments'
