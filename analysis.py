@@ -57,9 +57,16 @@ class SocialMediaAnalyzer:
             text_data = pd.read_sql_query("SELECT text FROM trump_tweets", self.conn)['text']
         else:
             try:
-                text_data = pd.read_sql_query("SELECT comments FROM reddit_comments", self.conn)['comments']
-            except KeyError:
-                raise KeyError("The 'comments' column does not exist in the 'reddit_comments' table.")
+                # First, let's check the actual column names
+                columns_query = "SELECT * FROM reddit_comments LIMIT 1"
+                columns_df = pd.read_sql_query(columns_query, self.conn)
+                print("Available columns:", columns_df.columns.tolist())
+                
+                # Use 'Comments' instead of 'comments' (note the capital C)
+                text_data = pd.read_sql_query("SELECT Comments FROM reddit_comments", self.conn)['Comments']
+            except Exception as e:
+                print(f"Error accessing Reddit comments: {str(e)}")
+                raise
         
         all_text = ' '.join(str(text) for text in text_data)
         wordcloud = WordCloud(width=800, height=400, background_color='white').generate(all_text)
@@ -81,7 +88,7 @@ class SocialMediaAnalyzer:
         
         hourly_device_dist = pd.crosstab(tweets_df['hour'], tweets_df['device'])
         
-        plt.figure(figsize=(12, 6))
+        plt.figure(figsize=(16, 8))
         hourly_device_dist.plot(kind='bar', stacked=True)
         plt.title('Tweet Distribution by Hour and Device')
         plt.xlabel('Hour of Day')

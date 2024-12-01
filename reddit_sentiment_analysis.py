@@ -14,19 +14,19 @@ def perform_reddit_sentiment_analysis(conn):
         columns_df = pd.read_sql_query(columns_query, conn)
         print("Available columns in reddit_comments table:", columns_df.columns.tolist())
         
-        # Query the data - using 'Post' column (note the capital P)
+        # Query the data - using 'comments' column
         reddit_df = pd.read_sql_query(
-            "SELECT Post, Post_Date FROM reddit_comments WHERE Post IS NOT NULL", 
+            "SELECT comments, post_date FROM reddit_comments WHERE comments IS NOT NULL", 
             conn
         )
         
-        # Calculate sentiment for posts
-        reddit_df['sentiment'] = reddit_df['Post'].apply(
+        # Calculate sentiment for comments
+        reddit_df['sentiment'] = reddit_df['comments'].apply(
             lambda x: TextBlob(str(x)).sentiment.polarity if pd.notnull(x) else 0
         )
         
-        # Convert Post_Date to datetime
-        reddit_df['date'] = pd.to_datetime(reddit_df['Post_Date'], errors='coerce').dt.date
+        # Convert post_date to datetime
+        reddit_df['date'] = pd.to_datetime(reddit_df['post_date'], errors='coerce').dt.date
         
         # Remove any null dates
         reddit_df = reddit_df.dropna(subset=['date'])
@@ -34,7 +34,7 @@ def perform_reddit_sentiment_analysis(conn):
         # Aggregate sentiment by date
         daily_reddit_sentiment = reddit_df.groupby('date')['sentiment'].mean()
         
-        print(f"Processed {len(reddit_df)} Reddit posts")
+        print(f"Processed {len(reddit_df)} Reddit comments")
         return daily_reddit_sentiment
         
     except Exception as e:
