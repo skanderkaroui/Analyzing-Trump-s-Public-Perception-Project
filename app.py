@@ -1,31 +1,28 @@
 import sqlite3
 import pandas as pd
 
-# Step 1: Define the organization for the work
+# Constants
+REDDIT_FILE = 'reddit_trump.txt'
+TWEETS_FILE = 'trump_tweets.csv'
+DATABASE = 'social_analysis.db'
+
 def define_organization():
+    """Define the purpose of the project."""
     print("This project is aimed at analyzing social media data related to Donald Trump.")
     print("We will work with datasets of Reddit comments and Trump's tweets.")
 
-# Step 2: Extract data from social media datasets
 def extract_data(reddit_file, tweets_file):
+    """Extract data from Reddit and Twitter datasets."""
     print("Extracting data from files...")
-    
-    # Load Reddit data
     reddit_data = pd.read_csv(reddit_file, delimiter='|', on_bad_lines='skip')
-    
-    # Load Tweets data
     tweets_data = pd.read_csv(tweets_file)
-    
     print(f"Reddit data: {reddit_data.shape[0]} rows loaded.")
     print(f"Tweets data: {tweets_data.shape[0]} rows loaded.")
-    
     return reddit_data, tweets_data
 
-# Step 3: Define the database model
 def define_database_model(cursor):
+    """Define the database schema."""
     print("Defining database schema...")
-    
-    # Create table for tweets
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS trump_tweets (
             id INTEGER PRIMARY KEY,
@@ -40,8 +37,6 @@ def define_database_model(cursor):
             date TEXT
         );
     ''')
-    
-    # Create table for Reddit comments
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS reddit_comments (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -61,68 +56,74 @@ def define_database_model(cursor):
     ''')
     print("Database schema defined.")
 
-# Step 4: Load data into the database
 def load_data_to_db(conn, reddit_data, tweets_data):
+    """Load data into the database."""
     print("Loading data into the database...")
-    
-    # Load tweets data
     tweets_data.to_sql('trump_tweets', conn, if_exists='replace', index=False)
-    
-    # Load Reddit comments data
     reddit_data.to_sql('reddit_comments', conn, if_exists='replace', index=False)
-    
     print("Data successfully loaded into the database.")
 
-# Step 5: Execute queries on the data
 def execute_queries(conn):
+    """Execute predefined queries on the data."""
     print("Executing queries on the data...")
-    
-    # Example Query 1: Top 5 most retweeted tweets
-    query1 = '''
-        SELECT text, retweets
-        FROM trump_tweets
-        ORDER BY retweets DESC
-        LIMIT 5;
-    '''
-    top_retweets = pd.read_sql_query(query1, conn)
-    print("Top 5 most retweeted tweets:")
-    print(top_retweets)
-    
-    # Example Query 2: Top Reddit posts by points
-    query2 = '''
-        SELECT title, points
-        FROM reddit_comments
-        WHERE points IS NOT NULL
-        ORDER BY points DESC
-        LIMIT 5;
-    '''
-    top_reddit_posts = pd.read_sql_query(query2, conn)
-    print("Top 5 Reddit posts by points:")
-    print(top_reddit_posts)
+    queries = {
+        "Top 5 most retweeted tweets": '''
+            SELECT text, retweets
+            FROM trump_tweets
+            ORDER BY retweets DESC
+            LIMIT 5;
+        ''',
+        "Top Reddit posts by points": '''
+            SELECT title, points
+            FROM reddit_comments
+            WHERE points IS NOT NULL
+            ORDER BY points DESC
+            LIMIT 5;
+        ''',
+        "Count of Tweets by Device": '''
+            SELECT device, COUNT(*) AS tweet_count
+            FROM trump_tweets
+            GROUP BY device;
+        ''',
+        "Average Favorites per Tweet": '''
+            SELECT AVG(favorites) AS average_favorites
+            FROM trump_tweets;
+        ''',
+        "Top 5 Most Commented Reddit Posts": '''
+            SELECT title, comments_count
+            FROM reddit_comments
+            WHERE comments_count IS NOT NULL
+            ORDER BY comments_count DESC
+            LIMIT 5;
+        ''',
+        "Count of Retweets": '''
+            SELECT COUNT(*) AS retweet_count
+            FROM trump_tweets
+            WHERE is_retweet = 'TRUE';
+        '''
+    }
 
-# Main program
+    for description, query in queries.items():
+        result = pd.read_sql_query(query, conn)
+        print(f"{description}:")
+        print(result)
+
 def main():
-    reddit_file = 'reddit_trump.txt'
-    tweets_file = 'trump_tweets.csv'
-    database = 'social_analysis.db'
-    
-    # Step 1: Define the organization
+    """Main function to run the program."""
     define_organization()
-    
-    # Step 2: Extract data
-    reddit_data, tweets_data = extract_data(reddit_file, tweets_file)
-    
-    # Step 3: Connect to database and define schema
-    conn = sqlite3.connect(database)
+    reddit_data, tweets_data = extract_data(REDDIT_FILE, TWEETS_FILE)
+
+    # Connect to database and define schema
+    conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
     define_database_model(cursor)
-    
-    # Step 4: Load data into the database
+
+    # Load data into the database
     load_data_to_db(conn, reddit_data, tweets_data)
-    
-    # Step 5: Execute queries
+
+    # Execute queries
     execute_queries(conn)
-    
+
     # Close connection
     conn.close()
     print("Program completed.")
