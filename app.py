@@ -81,9 +81,10 @@ def execute_queries(conn):
             FROM trump_tweets;
         ''',
         "Top 5 Most Commented Reddit Posts": '''
-            SELECT title, comments_count
+            SELECT title, COUNT(comments) AS comments_count
             FROM reddit_comments
-            WHERE comments_count IS NOT NULL
+            WHERE comments IS NOT NULL
+            GROUP BY title
             ORDER BY comments_count DESC
             LIMIT 5;
         ''',
